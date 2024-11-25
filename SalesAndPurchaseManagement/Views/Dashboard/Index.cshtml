@@ -1,0 +1,247 @@
+﻿@model IEnumerable<SalesAndPurchaseManagement.Models.Employee>
+@using SalesAndPurchaseManagement.Helpers
+@{
+    ViewData["Title"] = "Tổng quan";
+
+    Layout = "~/Views/Shared/MyLayoutHelper.cshtml";
+}
+
+<!-- Small boxes (Stat box) -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>@ViewBag.TotalSalesInvoices</h3>
+                <p>Đơn hàng đã bán hôm nay</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-bag"></i>
+            </div>
+            <a asp-controller="SalesInvoice" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>@ViewBag.TotalMonthIncome.ToString("N0")<sup style="font-size: 20px">vnd</sup></h3>
+                <p>Doanh thu tháng</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-stats-bars"></i>
+            </div>
+            <a href="#" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>@ViewBag.TotalUsers</h3>
+                <p>Khách hàng</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-person-add"></i>
+            </div>
+            <a asp-controller="Customer" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>@ViewBag.TotalProducts</h3>
+                <p>Sản phẩm khác nhau</p>
+            </div>
+            <div class="icon">
+                <i class="ion ion-pricetags"></i>
+            </div>
+            <a asp-controller="Product" asp-action="Index" class="small-box-footer">Chi tiết <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- DONUT CHART -->
+    <div class="col-md-6">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title">Biểu diễn tổng số sản phẩm bán được theo từng danh mục</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="donutChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-md-6 -->
+    <!-- PIE CHART -->
+    <div class="col-md-6">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title">Biểu diễn tổng số tiền bán hàng theo từng danh mục (VNĐ)</h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-md-6 -->
+</div>
+<!-- /.row -->
+<!--Nhân viên-->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Thành viên mới nhất</h3>
+        <div class="card-tools">
+            <span class="badge badge-danger">@Model.Count() Thành viên mới</span>
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <ul class="users-list clearfix">
+            @if (Model != null && Model.Any())
+            {
+
+                foreach (var employee in Model)
+
+                {
+                    <li>
+                        <a asp-controller="Employee" asp-action="ViewDetail" asp-route-id="@employee.EmployeeId" style="text-decoration: none; color: inherit;">
+                            <div class="text-center">
+                                @if (!string.IsNullOrEmpty(employee.Image))
+
+                                {
+                                    <img class="profile-user-img img-fluid img-circle" src="~/images/@employee.Image" alt="Ảnh Nhân Viên" style="width: 150px; height: 150px; object-fit: cover;" />
+                                }
+
+                                else
+
+                                {
+                                    <img class="profile-user-img img-fluid img-circle" src="~/images/@AppDefaults.DefaultImageFile" alt="Ảnh mặc định">
+                                }
+                            </div>
+                            <span class="users-list-name">@employee.EmployeeName</span>
+                            <span class="users-list-date">@employee.DateOfBirth.ToString("dd/MM/yyyy")</span>
+                        </a>
+                    </li>
+                }
+            }
+            else
+            {
+                <li>
+                    <p>Không có nhân viên mới.</p>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="card-footer text-center">
+        <a href="@Url.Action("Index", "Employee")">Xem tất cả nhân viên</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Prepare data for Donut and Pie charts
+            var donutLabels = [];
+            var donutData = [];
+            var pieLabels = [];
+            var pieData = [];
+
+            // Loop through donut data
+            @foreach (var item in ViewBag.DonutData)
+            {
+                <text>
+                    donutLabels.push('@Html.Raw(item.CategoryName)'); // Use CategoryName for labels
+                    donutData.push(@item.TotalSold);
+                </text>
+            }
+
+            // Loop through pie data
+            @foreach (var item in ViewBag.PieData)
+            {
+                <text>
+                    pieLabels.push('@Html.Raw(item.CategoryName)'); // Use CategoryName for labels
+                    pieData.push(@item.TotalRevenue);
+                </text>
+            }
+
+            // Function to initialize charts
+            function initializeDonutChart() {
+                var donutChartCanvas = $('#donutChart').get(0).getContext('2d');
+                var donutChartOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    cutoutPercentage: 50 // Donut-specific option
+                };
+                new Chart(donutChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: donutLabels,
+                        datasets: [{
+                            data: donutData,
+                            backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef'] // Add more colors if needed
+                        }]
+                    },
+                    options: donutChartOptions
+                });
+            }
+
+            function initializePieChart() {
+                var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+                var pieChartOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true
+                };
+                new Chart(pieChartCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieData,
+                            backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef'] // Add more colors if needed
+                        }]
+                    },
+                    options: pieChartOptions
+                });
+            }
+
+            // Initialize charts only if data is available
+            if (donutLabels.length > 0 && donutData.length > 0) {
+                initializeDonutChart();
+            } else {
+                console.log('No data available for the donut chart.');
+            }
+
+            if (pieLabels.length > 0 && pieData.length > 0) {
+                initializePieChart();
+            } else {
+                console.log('No data available for the pie chart.');
+            }
+
+            // Logging data for debugging
+            console.log('Donut Labels:', donutLabels);
+            console.log('Donut Data:', donutData);
+            console.log('Pie Labels:', pieLabels);
+            console.log('Pie Data:', pieData);
+        });
+    </script>
+}

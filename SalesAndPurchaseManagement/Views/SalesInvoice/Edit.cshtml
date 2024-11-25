@@ -1,0 +1,313 @@
+﻿@model SalesAndPurchaseManagement.Models.SalesInvoice
+
+@{
+    ViewData["Title"] = "Chỉnh sửa hóa đơn bán";
+
+    Layout = "~/Views/Shared/MyLayoutHelper.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="SalesInvoiceId" />
+
+    <!-- Chọn khách hàng -->
+    <div class="form-group">
+        <label for="CustomerId">Chọn khách hàng:</label>
+        <select asp-for="CustomerId" class="form-control select2bs4" asp-items="ViewBag.Customers" id="CustomerId">
+            <option value="" disabled>-- Chọn khách hàng --</option>
+        </select>
+        <span class="text-danger">@Html.ValidationMessageFor(m => m.CustomerId)</span>
+    </div>
+
+    <!-- Thông tin khách hàng -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin khách hàng</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="CustomerIdDisplay">@Model.Customer?.CustomerId ?? "--"</td>
+                        <td id="CustomerName">@Model.Customer?.CustomerName ?? "--"</td>
+                        <td id="CustomerAddress">@Model.Customer?.Address ?? "--"</td>
+                        <td id="CustomerPhone">@Model.Customer?.PhoneNumber ?? "--"</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chọn sản phẩm -->
+    <div class="form-group">
+        <label for="ProductId">Chọn sản phẩm:</label>
+        <select id="ProductId" class="form-control select2bs4">
+            <option value="" disabled selected>-- Chọn sản phẩm --</option>
+            @foreach (var product in ViewBag.Products)
+            {
+                <option value="@product.Value">@product.Text</option>
+            }
+        </select>
+        <span class="text-danger" id="ProductError" style="display: none;">Vui lòng chọn sản phẩm.</span>
+    </div>
+
+    <!-- Thông tin sản phẩm cần thêm -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin sản phẩm cần thêm</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID Sản Phẩm</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Số lượng có sẵn</th>
+                        <th>Số Lượng</th>
+                        <th>Đơn Giá</th>
+                        <th>Giảm Giá (%)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="SelectedProductId">--</td>
+                        <td id="SelectedProductName">--</td>
+                        <td id="AvailableQuantityDisplay">--</td>
+                        <td>
+                            <input type="number" class="form-control" id="ProductQuantity" min="1" placeholder="Nhập số lượng" />
+                            <span class="text-danger" id="QuantityError" style="display: none;">Vui lòng nhập số lượng hợp lệ.</span>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" id="ProductUnitPrice" min="0" placeholder="Nhập đơn giá" />
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" id="ProductDiscount" min="0" max="100" placeholder="Nhập giảm giá (%) nếu có" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" id="AddProductButton">Thêm sản phẩm</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Danh sách sản phẩm đã thêm -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Danh sách sản phẩm đã thêm</h3>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped" id="ProductDetailsTable">
+                <thead>
+                    <tr>
+                        <th>ID Sản Phẩm</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Số Lượng</th>
+                        <th>Đơn Giá</th>
+                        <th>Giảm Giá (%)</th>
+                        <th>Tổng Tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="SelectedProductTableBody">
+                    @{
+                        int index = 0;
+                    }
+                    @foreach (var detail in Model.SalesInvoiceDetails)
+
+                    {
+                        <tr data-index="@index">
+                            <td>
+                                @detail.ProductId
+                                <input type="hidden" name="invoiceDetails[@index].ProductId" value="@detail.ProductId" />
+                            </td>
+                            <td>@detail.Product.ProductName</td>
+                            <td>
+                                <input type="number" class="form-control quantity-input" name="invoiceDetails[@index].Quantity" value="@detail.Quantity" min="1" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control unitprice-input" name="invoiceDetails[@index].UnitPrice" value="@detail.UnitPrice" min="0" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control discount-input" name="invoiceDetails[@index].Discount" value="@detail.Discount" min="0" max="100" />
+                            </td>
+                            <td class="total-amount-cell">@detail.TotalAmount</td>
+                            <td><button type="button" class="btn btn-danger RemoveProductButton">Xóa</button></td>
+                        </tr>
+                        index++;
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tổng tiền hóa đơn -->
+    <div class="mt-3">
+        <h4>Tổng tiền hóa đơn: <span id="InvoiceTotalAmount">@Model.TotalAmount</span></h4>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Lưu hóa đơn</button>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize Select2
+            $('.select2bs4').select2({
+                theme: 'bootstrap4'
+            });
+
+            // Keep track of the next index for new products
+            var nextIndex = @Model.SalesInvoiceDetails.Count();
+
+            // Load customer information when the page loads
+            var initialCustomerId = '@Model.CustomerId';
+            if (initialCustomerId) {
+                loadCustomerInfo(initialCustomerId);
+            }
+
+            // Load customer info when customer selection changes
+            $('#CustomerId').change(function () {
+                var customerId = $(this).val();
+                loadCustomerInfo(customerId);
+            });
+
+            function loadCustomerInfo(customerId) {
+                $.ajax({
+                    url: '@Url.Action("GetCustomerInfo", "SalesInvoice")',
+                    data: { customerId: customerId },
+                    success: function (data) {
+                        $('#CustomerIdDisplay').text(data.customerId);
+                        $('#CustomerName').text(data.customerName);
+                        $('#CustomerAddress').text(data.address);
+                        $('#CustomerPhone').text(data.phoneNumber);
+                    }
+                });
+            }
+
+            // Load product information when a product is selected
+            $('#ProductId').change(function () {
+                var productId = $(this).val();
+                if (productId) {
+                    $.ajax({
+                        url: '@Url.Action("GetProductInfo", "SalesInvoice")',
+                        data: { productId: productId },
+                        success: function (data) {
+                            if (data) {
+                                $('#SelectedProductId').text(data.productId);
+                                $('#SelectedProductName').text(data.productName);
+                                $('#AvailableQuantityDisplay').text(data.availableQuantity);
+                                $('#ProductUnitPrice').val(data.sellingPrice);
+                                $('#ProductDiscount').val('0');
+                                $('#ProductQuantity').val('');
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Handle adding products to the invoice
+            $('#AddProductButton').click(function () {
+                var productId = $('#SelectedProductId').text();
+                var productName = $('#SelectedProductName').text();
+                var availableQuantity = parseInt($('#AvailableQuantityDisplay').text());
+                var quantity = parseInt($('#ProductQuantity').val());
+                var unitPrice = parseFloat($('#ProductUnitPrice').val());
+                var discount = parseInt($('#ProductDiscount').val()) || 0;
+
+                if (!productId || productId === '--') {
+                    $('#ProductError').show();
+                    return;
+                } else {
+                    $('#ProductError').hide();
+                }
+
+                if (isNaN(quantity) || quantity <= 0 || quantity > availableQuantity) {
+                    $('#QuantityError').show();
+                    return;
+                } else {
+                    $('#QuantityError').hide();
+                }
+
+                // Calculate total amount
+                var totalAmount = quantity * unitPrice * (100 - discount) / 100;
+
+                // Check if product is already added
+                var existingRow = $('#SelectedProductTableBody').find(`input[name$='ProductId'][value='${productId}']`);
+                if (existingRow.length > 0) {
+                    alert('Sản phẩm này đã được thêm.');
+                    return;
+                }
+
+                // Append the product to the table with the correct index
+                $('#SelectedProductTableBody').append(`
+                            <tr data-index="${nextIndex}">
+                                <td>${productId}<input type="hidden" name="invoiceDetails[${nextIndex}].ProductId" value="${productId}" /></td>
+                                <td>${productName}</td>
+                                <td><input type="number" class="form-control quantity-input" name="invoiceDetails[${nextIndex}].Quantity" value="${quantity}" min="1" /></td>
+                                <td><input type="number" class="form-control unitprice-input" name="invoiceDetails[${nextIndex}].UnitPrice" value="${unitPrice}" min="0" /></td>
+                                <td><input type="number" class="form-control discount-input" name="invoiceDetails[${nextIndex}].Discount" value="${discount}" min="0" max="100" /></td>
+                                <td class="total-amount-cell">${totalAmount}</td>
+                                <td><button type="button" class="btn btn-danger RemoveProductButton">Xóa</button></td>
+                            </tr>
+                        `);
+
+                nextIndex++; // Increment the index for the next product
+
+                updateInvoiceTotalAmount();
+
+                // Clear product selection
+                $('#ProductId').val('').trigger('change');
+                $('#SelectedProductId').text('--');
+                $('#SelectedProductName').text('--');
+                $('#AvailableQuantityDisplay').text('--');
+                $('#ProductUnitPrice').val('');
+                $('#ProductDiscount').val('');
+                $('#ProductQuantity').val('');
+            });
+
+            // Handle removing products from the invoice
+            $('#SelectedProductTableBody').on('click', '.RemoveProductButton', function () {
+                $(this).closest('tr').remove();
+                updateInvoiceTotalAmount();
+            });
+
+            // Update total amount when quantity, unit price, or discount changes
+            $('#SelectedProductTableBody').on('input', '.quantity-input, .unitprice-input, .discount-input', function () {
+                var row = $(this).closest('tr');
+                var quantity = parseInt(row.find('.quantity-input').val()) || 0;
+                var unitPrice = parseFloat(row.find('.unitprice-input').val()) || 0;
+                var discount = parseInt(row.find('.discount-input').val()) || 0;
+
+                var totalAmount = quantity * unitPrice * (100 - discount) / 100;
+                row.find('.total-amount-cell').text(totalAmount);
+
+                updateInvoiceTotalAmount();
+            });
+
+            function updateInvoiceTotalAmount() {
+                var total = 0;
+                $('#SelectedProductTableBody tr').each(function () {
+                    var amount = parseFloat($(this).find('.total-amount-cell').text()) || 0;
+                    total += amount;
+                });
+                $('#InvoiceTotalAmount').text(total);
+            }
+
+            // Initial calculation of total amount
+            updateInvoiceTotalAmount();
+        });
+    </script>
+}

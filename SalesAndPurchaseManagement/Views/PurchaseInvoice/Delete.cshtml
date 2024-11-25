@@ -1,0 +1,78 @@
+﻿@model SalesAndPurchaseManagement.Models.PurchaseInvoice
+
+@{
+    ViewData["Title"] = "Xóa hóa đơn mua";
+
+    Layout = "~/Views/Shared/MyLayoutHelper.cshtml";
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Invoice.css" />
+}
+
+
+<section>
+    <div id="printableInvoice">
+        <div class="invoice">
+            <div class="invoice_info">
+                <div class="i_row">
+                    <div class="i_logo">
+                        <h1>DAVSH</h1>
+                    </div>
+                    <div class="title">
+                        <h1>Hóa đơn mua số @Model.PurchaseInvoiceId</h1>
+                    </div>
+                </div>
+                <div class="i_row">
+                    <div class="i_to">
+                        <p><strong>Nhà cung cấp:</strong> @Model.Supplier.SupplierName</p>
+                        <p><strong>Điện thoại:</strong> @Model.Supplier.PhoneNumber</p>
+                        <p><strong>Địa chỉ:</strong> @Model.Supplier.Address</p>
+                    </div>
+                    <div class="i_details text_right">
+                        <p><strong>Ngày nhập:</strong> @Model.InvoiceDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Tổng tiền:</strong> @Model.TotalAmount.ToString("N0") vnd</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="invoice_table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Mã hàng</th>
+                            <th>Tên hàng</th>
+                            <th>Số lượng</th>
+                            <th>Giá</th>
+                            <th>Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var detail in Model.PurchaseInvoiceDetails)
+
+                        {
+                            <tr>
+                                <td>@detail.Product.ProductId</td>
+                                <td>@detail.Product.ProductName</td>
+                                <td>@detail.Quantity</td>
+                                <td>@detail.UnitPrice.ToString("N0")</td>
+                                <td>@detail.TotalAmount.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning">
+        <strong>Cảnh báo!</strong> Bạn có chắc chắn muốn xóa hóa đơn này?
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" name="id" value="@Model.PurchaseInvoiceId" />
+        <button type="submit" class="btn btn-danger">Xóa hóa đơn</button>
+        <a href="@Url.Action("Index", "PurchaseInvoice")" class="btn btn-secondary">Hủy</a>
+    </form>
+</section>

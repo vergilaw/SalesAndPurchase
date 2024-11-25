@@ -1,0 +1,169 @@
+﻿@model SalesAndPurchaseManagement.Models.SalesInvoice
+
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn bán";
+    Layout = "~/Views/Shared/MyLayoutHelper.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Invoice.css" />
+}
+
+<section>
+    <!-- Bọc nội dung hóa đơn trong một div để xuất PDF -->
+    <div id="printableInvoice">
+        <div class="invoice">
+            <div class="invoice_info">
+                <div class="i_row">
+                    <div class="i_logo">
+                        <h1>DAVSH</h1>
+                    </div>
+                    <div class="title">
+                        <h1>Hóa đơn bán số @Model.SalesInvoiceId</h1>
+                    </div>
+                </div>
+                <div class="i_row">
+                    <div class="i_to">
+                        <div class="main_title">
+                            <p>Khách hàng</p>
+                        </div>
+                        <div class="p_title">
+                            <p>@(Model.Customer != null ? Model.Customer.CustomerName : "N/A")</p>
+                        </div>
+                        <div class="p_title">
+                            <p>@(Model.Customer != null ? Model.Customer.PhoneNumber : "N/A")</p>
+                            <p>@(Model.Customer != null ? Model.Customer.Address : "N/A")</p>
+                        </div>
+                    </div>
+                    <div class="i_details text_right">
+                        <div class="main_title">
+                            <p>Thông tin hóa đơn</p>
+                        </div>
+                        <div class="p_title">
+                            <p>Số hóa đơn:</p>
+                            <span>@Model.SalesInvoiceId</span>
+                        </div>
+                        <div class="p_title">
+                            <p>Ngày bán:</p>
+                            <span>@Model.InvoiceDate.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="i_row">
+                    <div class="i_employee">
+                        <div class="main_title">
+                            <p>Nhân viên bán hàng</p>
+                        </div>
+                        <div class="p_title">
+                            <p>Mã nhân viên</p>
+                            <span>@Model.EmployeeId</span>
+                        </div>
+                        <div class="p_title">
+                            <p>Tên nhân viên</p>
+                            <span>@(Model.Employee != null ? Model.Employee.EmployeeName : "N/A")</span>
+                        </div>
+                    </div>
+                    <div class="i_duetotal text_right">
+                        <div class="main_title">
+                            <p>Tổng chi phí</p>
+                        </div>
+                        <div class="p_title">
+                            <p>Tổng (VND):</p>
+                            <span>@Model.TotalAmount.ToString("N0")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="invoice_table">
+                <div class="i_table">
+                    <div class="i_table_head">
+                        <div class="i_row">
+                            <div class="i_col w_40">
+                                <p class="p_title">Mô tả hàng hóa</p>
+                            </div>
+                            <div class="i_col w_15 text_center">
+                                <p class="p_title">Số lượng</p>
+                            </div>
+                            <div class="i_col w_15 text_center">
+                                <p class="p_title">Giá</p>
+                            </div>
+                            <div class="i_col w_15 text_center">
+                                <p class="p_title">Giảm giá (%)</p>
+                            </div>
+                            <div class="i_col w_15 text_right">
+                                <p class="p_title">Tổng tiền</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="i_table_body">
+                        @foreach (var item in Model.SalesInvoiceDetails)
+                        {
+                            <div class="i_row">
+                                <div class="i_col w_40">
+                                    <p>
+                                        @(item.Product != null ? item.Product.ProductId.ToString() : "N/A")
+                                        @(item.Product != null ? item.Product.ProductName : "N/A")
+                                    </p>
+                                    <span>
+                                        @(item.Product?.Manufacturer != null ? item.Product.Manufacturer.ManufacturerName : "N/A"),
+                                        @(item.Product != null ? item.Product.Color : "N/A"),
+                                        @(item.Product != null ? item.Product.GetSize() : "N/A")
+                                    </span>
+                                </div>
+                                <div class="i_col w_15 text_center">
+                                    <p>@item.Quantity</p>
+                                </div>
+                                <div class="i_col w_15 text_center">
+                                    <p>@item.UnitPrice.ToString("N0")</p>
+                                </div>
+                                <div class="i_col w_15 text_center">
+                                    <p>@item.Discount.ToString("N0")</p>
+                                </div>
+                                <div class="i_col w_15 text_right">
+                                    <p>@item.TotalAmount.ToString("N0")</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="i_table_foot">
+                        <div class="i_row grand_total_wrap">
+                            <div class="i_col w_50">
+                                <p>TỔNG:</p>
+                            </div>
+                            <div class="i_col w_50 text_right">
+                                <p>@Model.TotalAmount.ToString("N0") VND</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            <!-- Nút xuất hóa đơn PDF ở bên ngoài nội dung hóa đơn -->
+        <div class="export_button">
+            <button class="btn-export" onclick="exportInvoiceAsPDF()">Xuất hóa đơn PDF</button>
+        </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <script>
+        function exportInvoiceAsPDF() {
+            // Chọn phần tử HTML chứa hóa đơn để xuất ra PDF
+            const invoiceElement = document.getElementById('printableInvoice');
+
+            // Cấu hình html2pdf
+            const options = {
+                margin: 0.5,                 // Lề của PDF
+                filename: `Hóa đơn bán số ${@Model.SalesInvoiceId}.pdf`, // Tên file PDF
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },   // Tăng độ phân giải của canvas
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Tạo và tải xuống PDF
+            html2pdf().set(options).from(invoiceElement).save();
+        }
+    </script>
+}
