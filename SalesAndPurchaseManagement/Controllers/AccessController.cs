@@ -134,7 +134,7 @@ namespace SalesAndPurchaseManagement.Controllers
 
         private string GenerateOtp()
         {
-            return new Random().Next(100000, 999999).ToString();
+            return new Random().Next(100000, 9999999).ToString();
         }
     }
 }
