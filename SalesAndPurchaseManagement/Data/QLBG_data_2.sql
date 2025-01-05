@@ -63,7 +63,7 @@ INSERT INTO [dbo].[Employees] ([EmployeeName], [Gender], [DateOfBirth], [PhoneNu
 (N'Phạm Thị My', 0, '1978-12-12', N'0904567890', N'101 Đường JKL, Quận 4, TP.HCM', 'user_default.png', 1, N'AdminPass101', 1, N'ql4@example.com'),
 (N'Hoàng Văn Trung', 1, '1985-04-18', N'0905678901', N'102 Đường MNO, Quận 5, TP.HCM', 'user_default.png', 1, N'AdminPass102', 1, N'ql5@example.com'),
 
-(N'Vũ Thị Đào', 0, '1990-05-25', N'0906789012', N'103 Đường PQR, Quận 6, TP.HCM', 'user_default.png', 2, N'UserPass123', 0, N'nv1@example.com'),
+(N'Vũ Thị Đào', 0, '1992-05-25', N'0906789012', N'103 Đường PQR, Quận 6, TP.HCM', 'user_default.png', 2, N'UserPass123', 0, N'nv1@example.com'),
 (N'Nguyễn Văn Phú', 1, '1991-08-13', N'0907890123', N'104 Đường STU, Quận 7, TP.HCM', 'user_default.png', 2, N'UserPass456', 0, N'nv2@example.com'),
 (N'Phan Thị Viên', 0, '1992-02-23', N'0908901234', N'105 Đường VWX, Quận 8, TP.HCM', 'user_default.png', 2, N'UserPass789', 0, N'nv3@example.com'),
 (N'Bùi Văn Quý', 1, '1993-11-30', N'0909012345', N'106 Đường YZA, Quận 9, TP.HCM', 'user_default.png', 2, N'UserPass101', 0, N'nv4@example.com'),
